@@ -5,17 +5,21 @@ const inquirer = require("inquirer");
 const fs = require("fs");
 const util = require("util");
 const render = require("./lib/htmlRenderer");
-const writeFileAsync = util.promisify(fs.writeFile);
+const path = require("path");
 
-const writeHTML = function (generateHTML) {
-    writeFileAsync("./output/team.html", generateHTML);
+const OUTPUT_DIR = path.resolve(__dirname, "output");
+const outputPath = path.join(OUTPUT_DIR, "team.html");
 
-};
 
-const manager = [];
-const engineer = [];
-const intern = [];
+// const writeHTML = function (render) {
+//     writeFileAsync("./output/team.html", render);
 
+// };
+
+const managerInfo = [];
+const engineerInfo = [];
+const internInfo = [];
+const team = [];
 //manager
 
 const MakeItSo = () => {
@@ -53,7 +57,7 @@ const MakeItSo = () => {
                 data.officeNumber,
                 "Manager"
             );
-            manager.push(teamManager);
+            team.push(teamManager);
         })
         .then(function () {
             more();
@@ -94,7 +98,7 @@ const newIntern = () => {
                 res.school,
                 "Intern"
             );
-            intern.push(member);
+            team.push(member);
         })
         .then(function () {
             more();
@@ -135,25 +139,12 @@ const newEngineer = () => {
                 res.github,
                 "Engineer"
             );
-            engineer.push(employee);
+            team.push(employee);
         })
         .then(function () {
             more();
         });
 };
-
-
-async function done(manager, engineer, intern) {
-
-    console.log(
-        "Adding Members"
-    );
-
-    render(manager, engineer, intern);
-    writeHTML(render(manager, engineer, intern));
-};
-
-// more input?
 
 const more = () => {
     inquirer
@@ -168,7 +159,8 @@ const more = () => {
         .then(function (res) {
             if (res.add == "yes") {
                 addAnother();
-            } else done(manager, engineer, intern);
+                // } else done(managerInfo, engineerInfo, internInfo);
+            } else done(team);
 
         })
 };
@@ -195,32 +187,13 @@ const addAnother = () => {
         });
 };
 
-console.log(engineer.getName)
+async function done(team) {
+
+    console.log(
+        "Adding Members"
+    );
+
+    fs.writeFileSync(outputPath, render(team), "utf-8");
+};
+
 MakeItSo();
-
-
-
-
-
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
-
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
-
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
-
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
-
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an 
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work!```
